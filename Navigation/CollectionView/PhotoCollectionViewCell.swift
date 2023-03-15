@@ -14,14 +14,12 @@ class PhotoCollectionViewCell: UICollectionViewCell {
         image.translatesAutoresizingMaskIntoConstraints = false
         image.contentMode = .scaleAspectFill
         image.clipsToBounds = true
-        image.layer.cornerRadius = 10
         return image
     }()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         contentView.backgroundColor = .systemGray2
-        contentView.layer.cornerRadius = 10
         layout()
     }
     
