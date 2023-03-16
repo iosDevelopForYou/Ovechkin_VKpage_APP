@@ -20,9 +20,3 @@ extension UITextField {
     }
 }
  
-//extension LoginView: UITextFieldDelegate {
-//    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-//        endEditing(true)
-//        return true
-//    }
-//}

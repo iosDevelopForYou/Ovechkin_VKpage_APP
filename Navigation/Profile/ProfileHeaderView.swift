@@ -9,15 +9,6 @@ import UIKit
 
 class ProfileHeaderView: UIView {
     
-    private let newButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.backgroundColor = .systemOrange
-        button.setTitle("Useless Button", for: .normal)
-        
-        return button
-    }()
-    
     private var userImageView: UIImageView = {
         let imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 130, height: 130))
         imageView.image = UIImage(imageLiteralResourceName: "ovechkin")
@@ -38,7 +29,7 @@ class ProfileHeaderView: UIView {
         return label
     }()
     
-    private var statusShowButton: UIButton = {
+    private lazy var statusShowButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Show status", for: .normal)
         button.setTitleColor(.white, for: .normal)
@@ -49,6 +40,7 @@ class ProfileHeaderView: UIView {
         button.layer.shadowOpacity = 0.7
         button.layer.shadowRadius = 4
         button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(buttonPressed), for: .touchUpInside)
         return button
     }()
     
@@ -63,23 +55,22 @@ class ProfileHeaderView: UIView {
         return textField
     }()
     
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        setupView()
+        
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     func setupView() {
         addSubview(statusTextField)
         addSubview(userImageView)
         addSubview(profileNameLabel)
         addSubview(statusShowButton)
-        addSubview(newButton)
-        statusShowButton.addTarget(self, action: #selector(buttonPressed), for: .touchUpInside)
-        constraints()
         
-    }
-    
-    @objc func buttonPressed() {
-        print(placeholderText)
-    }
-    
-    private func constraints() {
         NSLayoutConstraint.activate([
             userImageView.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 16),
             userImageView.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor, constant: 16),
@@ -96,11 +87,12 @@ class ProfileHeaderView: UIView {
             
             statusTextField.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 98),
             statusTextField.leadingAnchor.constraint(equalTo: userImageView.trailingAnchor, constant: 25),
-            
-            newButton.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: 0),
-            newButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 0),
-            newButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: 0)
         ])
+        
+    }
+    
+    @objc func buttonPressed() {
+        print(placeholderText)
     }
 }
 

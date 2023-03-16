@@ -25,7 +25,7 @@ final class TabBarViewController: UITabBarController {
         tabBar.backgroundColor = .systemGray4
         
         let feedVC = FeedViewController()
-        lazy var profileVC = ProfileViewController()
+        lazy var profileVC = ProfileViewController() 
         let loginVC = LogInViewController()
         
         let feedNavigation = UINavigationController(rootViewController: feedVC)

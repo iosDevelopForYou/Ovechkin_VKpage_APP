@@ -11,15 +11,6 @@ class LogInViewController: UIViewController {
     
     private let notification = NotificationCenter.default
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        view.backgroundColor = .white
-        navigationController?.isNavigationBarHidden = false
-        addViews()
-        setupLoginButton()
-        checkLoginButtonStates()
-    }
-    
     let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
@@ -78,7 +69,7 @@ class LogInViewController: UIViewController {
         return textField
     }()
     
-    let loginButton: UIButton = {
+    private lazy var loginButton: UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle("Log in", for: .normal)
@@ -88,6 +79,7 @@ class LogInViewController: UIViewController {
         button.layer.shadowColor = UIColor.black.cgColor
         button.layer.shadowOpacity = 0.7
         button.layer.shadowRadius = 4
+        button.addTarget(self, action: #selector(goToProfileView), for: .touchUpInside)
         return button
     }()
     
@@ -95,17 +87,12 @@ class LogInViewController: UIViewController {
         let logo = UIImageView()
         logo.translatesAutoresizingMaskIntoConstraints = false
         logo.image = UIImage(named: "logo.png")
-        
         return logo
     }()
     
     @objc func goToProfileView() {
         let profileVC = ProfileViewController()
         navigationController?.pushViewController(profileVC, animated: true)
-    }
-    
-    func setupLoginButton() {
-        loginButton.addTarget(self, action: #selector(goToProfileView), for: .touchUpInside)
     }
     
     func checkLoginButtonStates() {
@@ -119,7 +106,8 @@ class LogInViewController: UIViewController {
         }
     }
     
-    func addViews() {
+    private func layout() {
+        
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
         contentView.addSubview(logoView)
@@ -129,10 +117,7 @@ class LogInViewController: UIViewController {
         textFieldStackView.addArrangedSubview(passwordTextField)
         
         checkLoginButtonStates()
-        constraints()
-    }
-    
-    private func constraints() {
+        
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -187,6 +172,13 @@ class LogInViewController: UIViewController {
     @objc private func keyboardWillHide() {
         scrollView.contentInset = .zero
         scrollView.verticalScrollIndicatorInsets = .zero
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.backgroundColor = .white
+        navigationController?.isNavigationBarHidden = false
+        layout()
     }
 }
 extension LogInViewController: UITextFieldDelegate {
