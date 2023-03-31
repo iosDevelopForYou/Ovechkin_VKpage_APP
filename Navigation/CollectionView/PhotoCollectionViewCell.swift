@@ -36,9 +36,9 @@ class PhotoCollectionViewCell: UICollectionViewCell {
             collectionImage.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             collectionImage.trailingAnchor.constraint(equalTo: contentView.trailingAnchor)
         ])
-    }
-    
+    }    
 }
+
 extension UIView {
     static var identifier : String {
         String(describing: self)

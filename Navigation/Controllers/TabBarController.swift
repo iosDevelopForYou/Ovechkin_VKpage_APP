@@ -20,7 +20,6 @@ final class TabBarViewController: UITabBarController {
         fatalError("init(coder:) has not been implemented")
     }
     
-    
     private func configure() {
         tabBar.backgroundColor = .systemGray4
         
@@ -39,5 +38,4 @@ final class TabBarViewController: UITabBarController {
         
         setViewControllers([feedNavigation, profileNavigation], animated: true)
     }
-    
 }

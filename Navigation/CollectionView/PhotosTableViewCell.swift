@@ -129,6 +129,7 @@ class PhotosTableViewCell: UITableViewCell {
         ])
     }
 }
+
 extension PhotosTableViewCell {
     
     enum Metric {

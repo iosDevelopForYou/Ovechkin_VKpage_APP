@@ -29,9 +29,9 @@ class ProfileHeaderView: UIView {
         return label
     }()
     
-    private lazy var statusShowButton: UIButton = {
+    private lazy var setStatusButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Show status", for: .normal)
+        button.setTitle("Set status", for: .normal)
         button.setTitleColor(.white, for: .normal)
         button.backgroundColor = .systemBlue
         button.layer.cornerRadius = 4
@@ -40,19 +40,32 @@ class ProfileHeaderView: UIView {
         button.layer.shadowOpacity = 0.7
         button.layer.shadowRadius = 4
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.addTarget(self, action: #selector(buttonPressed), for: .touchUpInside)
+        button.addTarget(self, action: #selector(setStatusButtonDidClick(_:)), for: .touchUpInside)
+        button.addTarget(self, action: #selector(touchDown), for: .touchDown)
+        button.addTarget(self, action: #selector(touchUp), for: .touchUpInside)
         return button
     }()
     
-    let placeholderText = "Waiting for something..."
+    var placeholderText = "Waiting for something..."
+    
     private lazy var statusTextField: UITextField = {
         let textField = UITextField()
-        textField.placeholder = placeholderText
         textField.font = UIFont.systemFont(ofSize: 15, weight: .regular)
+        textField.borderStyle = .roundedRect
+        textField.tintColor = .white
         textField.textColor = .gray
         textField.backgroundColor = .none
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
+    }()
+    
+    private var statusLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = "Waiting for something"
+        label.font = UIFont.systemFont(ofSize: 15, weight: .regular)
+        label.textColor = .systemBlue
+        return label
     }()
     
     private let subAvatarView: UIView = {
@@ -89,10 +102,11 @@ class ProfileHeaderView: UIView {
     private var heightUserImage = NSLayoutConstraint()
     
     func setupView() {
+        addSubview(statusLabel)
         addSubview(statusTextField)
         addSubview(userImageView)
         addSubview(profileNameLabel)
-        addSubview(statusShowButton)
+        addSubview(setStatusButton)
         
         topUserImage = userImageView.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 16)
         leadingUserImage = userImageView.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor, constant: 16)
@@ -105,16 +119,60 @@ class ProfileHeaderView: UIView {
             profileNameLabel.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 27),
             profileNameLabel.leadingAnchor.constraint(equalTo: userImageView.trailingAnchor, constant: 25),
             
-            statusShowButton.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 160),
-            statusShowButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
-            statusShowButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
-            statusShowButton.heightAnchor.constraint(equalToConstant: 50),
+            setStatusButton.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 160),
+            setStatusButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
+            setStatusButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
+            setStatusButton.heightAnchor.constraint(equalToConstant: 50),
             
-            statusTextField.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 98),
-            statusTextField.leadingAnchor.constraint(equalTo: userImageView.trailingAnchor, constant: 25),
+            statusLabel.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 98),
+            statusLabel.leadingAnchor.constraint(equalTo: userImageView.trailingAnchor, constant: 25),
+            statusLabel.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor, constant: -16),
+            
+            statusTextField.bottomAnchor.constraint(equalTo: statusLabel.topAnchor, constant: -8),
+            statusTextField.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor, constant: 171),
+            statusTextField.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor, constant: -16)
         ])
         
     }
+    
+    @objc func setStatusButtonDidClick(_ sender: UIButton) {
+        guard let textFieldText = statusTextField.text else {
+            return
+        }
+        if textFieldText.isEmpty {
+            shakeAnimationStatusTexfield()
+            statusLabel.textColor = .red
+            statusLabel.text = "Set status"
+        } else {
+            statusLabel.textColor = .systemBlue
+            statusLabel.text = statusTextField.text
+        }
+    }
+    
+    private func shakeAnimationStatusTexfield() {
+        let animation = CABasicAnimation(keyPath: "position")
+        animation.duration = 0.07
+        animation.repeatCount = 2
+        animation.autoreverses = true
+        animation.fromValue = NSValue(cgPoint: CGPoint(x: statusTextField.center.x - 10, y: statusTextField.center.y))
+        animation.toValue = NSValue(cgPoint: CGPoint(x: statusTextField.center.x + 10, y: statusTextField.center.y))
+        statusTextField.layer.add(animation, forKey: "position")
+    }
+    
+    @objc func touchDown() {
+        UIView.animate(withDuration: 0.5) {
+            self.setStatusButton.setTitle("", for: .normal)
+            self.setStatusButton.alpha = 0.4
+        }
+    }
+    
+    @objc func touchUp() {
+        UIView.animate(withDuration: 0.5) {
+            self.setStatusButton.alpha = 1.0
+            self.setStatusButton.setTitle("Set status", for: .normal)
+        }
+    }
+    
     
     private func setupGesture() {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(tapAction))
@@ -129,7 +187,7 @@ class ProfileHeaderView: UIView {
         
         NSLayoutConstraint.activate([
             closeButton.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-            closeButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10)
+            closeButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10)
         ])
         
         UIView.animate(withDuration: 0.5, delay: 0, options: .curveEaseInOut) {
@@ -137,6 +195,7 @@ class ProfileHeaderView: UIView {
             self.userImageView.layer.cornerRadius = 0
             self.topUserImage.constant = 100
             self.leadingUserImage.constant = 0
+            
             self.widthUserImage.constant = UIScreen.main.bounds.width
             self.heightUserImage.constant = UIScreen.main.bounds.width
             self.layoutIfNeeded()
@@ -162,10 +221,6 @@ class ProfileHeaderView: UIView {
                 self.layoutIfNeeded()
             }
         }
-    }
-    
-    @objc func buttonPressed() {
-        print(placeholderText)
     }
 }
 

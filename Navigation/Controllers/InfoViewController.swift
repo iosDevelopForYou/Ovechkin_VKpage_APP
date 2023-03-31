@@ -19,17 +19,19 @@ class InfoViewController: UIViewController {
     }()
     
     override func viewDidLoad() {
+        
         super.viewDidLoad()
         view.backgroundColor = .systemGray4
         setupButton()
-        
     }
+    
     private func setupButton() {
+        
         view.addSubview(postViewButton)
         postViewButton.center = view.center
         postViewButton.addTarget(self, action: #selector(tapAction), for: .touchUpInside)
-        
     }
+    
     @objc private func tapAction() {
         
         let alertController = UIAlertController(title: "Alert", message: "Are you okay?", preferredStyle: .alert)
@@ -46,6 +48,5 @@ class InfoViewController: UIViewController {
         alertController.addAction(noAction)
         
         self.present(alertController, animated: true, completion: nil)
-        
     }
 }
