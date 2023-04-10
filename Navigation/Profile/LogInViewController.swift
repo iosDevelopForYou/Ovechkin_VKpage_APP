@@ -284,7 +284,7 @@ class LogInViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-        navigationController?.isNavigationBarHidden = false
+        navigationController?.isNavigationBarHidden = true
         layout()
     }
 }
