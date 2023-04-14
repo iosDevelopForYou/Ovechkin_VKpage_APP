@@ -7,6 +7,9 @@
 
 import Foundation
 
-struct PostData {
+struct Post {
     var title: String
 }
+
+
+
