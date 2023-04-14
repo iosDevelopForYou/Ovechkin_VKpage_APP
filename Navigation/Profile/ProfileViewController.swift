@@ -9,8 +9,10 @@ import UIKit
 
 class ProfileViewController: UIViewController {
     
-    
     var postModel: [[Any]] = [["Photos"], PostModel.makeMockModel()]
+    var posts = PostModel.makeMockModel()
+    lazy var indexPathCell = IndexPath()
+    var postModelForSample = PostModel.makeMockModel()
     
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .grouped)
@@ -28,9 +30,10 @@ class ProfileViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-    
         layout()
     }
+    
+
     
     private func layout() {
         
@@ -64,17 +67,26 @@ extension ProfileViewController: UITableViewDataSource {
             return cell
             
         default:
-            if let model: PostModel = postModel[indexPath.section][indexPath.row] as? PostModel {
-                let cell: PostTableViewCell = tableView.dequeueReusableCell(withIdentifier: PostTableViewCell.identifier, for: indexPath) as! PostTableViewCell
-                cell.setupCell(model: model)
-                return cell
-            } else { return UITableViewCell() }
+            let cell: PostTableViewCell = tableView.dequeueReusableCell(withIdentifier: PostTableViewCell.identifier, for: indexPath) as! PostTableViewCell
+            cell.setupCell(indexPath: indexPath)
+            return cell
         }
     }
+    
     
     @objc private func galleryButtonAction() {
         let photosVC = PhotosViewController()
         navigationController?.pushViewController(photosVC, animated: true)
+    }
+    
+    @objc func animateCell(_ cell: UITableViewCell) {
+        UIView.animate(withDuration: 0.2, animations: {
+            cell.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
+        }, completion: { (_) in
+            UIView.animate(withDuration: 0.2, animations: {
+                cell.transform = CGAffineTransform.identity
+            })
+        })
     }
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
@@ -105,7 +117,21 @@ extension ProfileViewController: UITableViewDelegate {
             tableView.deleteRows(at: [indexPath], with: .fade)
         }
     }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let postModel = posts[indexPath.row]
+        let detailVC = DetailPostViewController(postModelPushVC: postModel)
+        let cell = tableView.cellForRow(at: indexPath)! as! PostTableViewCell
+        cell.viewsButtonTapped()
+        animateCell(cell)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            self.navigationController?.present(detailVC, animated: true)
+            
+        }
+    }
 }
+
+
 
 
 

@@ -10,6 +10,10 @@ import UIKit
 class LogInViewController: UIViewController {
     
     private let notification = NotificationCenter.default
+    private let userLogin = "ovechkin"
+    private let userPassword = "number8"
+    private let passwordMinimumLenth = 7
+    private let loginMinimumLenth = 8
     
     let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -48,6 +52,7 @@ class LogInViewController: UIViewController {
         textField.tintColor = colorSet
         textField.delegate = self
         textField.autocapitalizationType = .none
+        textField.addTarget(self,action: #selector(self.textFieldDidChange(_:)),for: UIControl.Event.editingChanged)
         textField.setLeftPaddingPoints(10)
         textField.setRightPaddingPoints(10)
         return textField
@@ -64,6 +69,7 @@ class LogInViewController: UIViewController {
         textField.tintColor = colorSet
         textField.isSecureTextEntry = true
         textField.delegate = self
+        textField.addTarget(self,action: #selector(self.textFieldDidChange(_:)),for: UIControl.Event.editingChanged)
         textField.setLeftPaddingPoints(10)
         textField.setRightPaddingPoints(10)
         return textField
@@ -79,7 +85,9 @@ class LogInViewController: UIViewController {
         button.layer.shadowColor = UIColor.black.cgColor
         button.layer.shadowOpacity = 0.7
         button.layer.shadowRadius = 4
-        button.addTarget(self, action: #selector(goToProfileView), for: .touchUpInside)
+        button.addTarget(self, action: #selector(loginButtonPressed), for: .touchUpInside)
+        button.addTarget(self, action: #selector(touchDown), for: .touchDown)
+        button.addTarget(self, action: #selector(touchUp), for: .touchUpInside)
         return button
     }()
     
@@ -90,19 +98,106 @@ class LogInViewController: UIViewController {
         return logo
     }()
     
-    @objc func goToProfileView() {
-        let profileVC = ProfileViewController()
-        navigationController?.pushViewController(profileVC, animated: true)
+    private var messageLabel: UILabel = {
+        let label = UILabel()
+        label.numberOfLines = 0
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    @objc func touchDown() {
+        UIView.animate(withDuration: 0.5) {
+            self.loginButton.setTitle("", for: .normal)
+            self.loginButton.alpha = 0.4
+        }
     }
     
-    func checkLoginButtonStates() {
-        switch loginButton.state {
-        case .normal: loginButton.alpha = 1
-        case .selected: loginButton.alpha = 0.8
-        case .highlighted: loginButton.alpha = 0.8
-        case .disabled: loginButton.alpha = 0.8
-        default:
-            break
+    @objc func touchUp() {
+        UIView.animate(withDuration: 0.5) {
+            self.loginButton.alpha = 1.0
+            self.loginButton.setTitle("Log in", for: .normal)
+        }
+    }
+    
+    @objc func loginButtonPressed() {
+        guard let username = loginTextField.text, let password = passwordTextField.text else {
+            return
+        }
+        
+        if username.isEmpty {
+            shakeAnimationLoginTextField()
+            messageLabel.text = ""
+        }
+        if password.isEmpty == true {
+            shakeAnimationPasswordTextField()
+            messageLabel.text = ""
+            
+        } else {
+            if username == userLogin && password == userPassword {
+                let profileVC = ProfileViewController()
+                navigationController?.pushViewController(profileVC, animated: true)
+            } else {
+                let alert = UIAlertController(title: "Error", message: "Incorrect username or password", preferredStyle: .alert)
+                let okAction = UIAlertAction(title: "OK", style: .destructive, handler: nil)
+                alert.addAction(okAction)
+                present(alert, animated: true, completion: nil)
+            }
+        }
+    }
+    
+    private func shakeAnimationLoginTextField() {
+        let animation = CABasicAnimation(keyPath: "position")
+        animation.duration = 0.07
+        animation.repeatCount = 2
+        animation.autoreverses = true
+        animation.fromValue = NSValue(cgPoint: CGPoint(x: loginTextField.center.x - 10, y: loginTextField.center.y))
+        animation.toValue = NSValue(cgPoint: CGPoint(x: loginTextField.center.x + 10, y: loginTextField.center.y))
+        
+        loginTextField.layer.add(animation, forKey: "position")
+    }
+    
+    private func shakeAnimationPasswordTextField() {
+        let animation = CABasicAnimation(keyPath: "position")
+        animation.duration = 0.07
+        animation.repeatCount = 2
+        animation.autoreverses = true
+        animation.fromValue = NSValue(cgPoint: CGPoint(x: passwordTextField.center.x - 10, y: passwordTextField.center.y))
+        animation.toValue = NSValue(cgPoint: CGPoint(x: passwordTextField.center.x + 10, y: passwordTextField.center.y))
+        
+        passwordTextField.layer.add(animation, forKey: "position")
+    }
+    
+    private func checkCountOfSymbolsLogin() {
+        let login = loginTextField.text
+        
+        if login!.count < loginMinimumLenth {
+            messageLabel.text = "Not enough characters in login"
+            messageLabel.textColor = .systemBlue
+        }
+        if  login!.count == loginMinimumLenth {
+            messageLabel.text = "Complete"
+            messageLabel.textColor = .green
+        }
+        if  login!.count > loginMinimumLenth {
+            messageLabel.text = "Too much characters in login"
+            messageLabel.textColor = .red
+        }
+    }
+    
+    private func  checkCountOfSymbolsPassword() {
+        let password = passwordTextField.text
+        
+        if password!.count < passwordMinimumLenth {
+            messageLabel.text = "Not enough characters in password"
+            messageLabel.textColor = .systemBlue
+        }
+        if  password!.count == passwordMinimumLenth {
+            messageLabel.text = "Complete"
+            messageLabel.textColor = .green
+        }
+        if  password!.count > passwordMinimumLenth {
+            messageLabel.text = "Too much characters in password"
+            messageLabel.textColor = .red
         }
     }
     
@@ -113,12 +208,15 @@ class LogInViewController: UIViewController {
         contentView.addSubview(logoView)
         contentView.addSubview(textFieldStackView)
         contentView.addSubview(loginButton)
+        contentView.addSubview(messageLabel)
         textFieldStackView.addArrangedSubview(loginTextField)
         textFieldStackView.addArrangedSubview(passwordTextField)
         
-        checkLoginButtonStates()
-        
         NSLayoutConstraint.activate([
+            messageLabel.bottomAnchor.constraint(equalTo: textFieldStackView.topAnchor, constant: -16),
+            messageLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            messageLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            
             scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
@@ -174,16 +272,63 @@ class LogInViewController: UIViewController {
         scrollView.verticalScrollIndicatorInsets = .zero
     }
     
+    @objc func textFieldDidChange(_ textField: UITextField) {
+        
+        if textField == loginTextField {
+            checkCountOfSymbolsLogin()
+        } else {
+            checkCountOfSymbolsPassword()
+        }
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-        navigationController?.isNavigationBarHidden = false
+        navigationController?.isNavigationBarHidden = true
         layout()
     }
 }
+
 extension LogInViewController: UITextFieldDelegate {
-    func textFieldShouldReturn(_ loginTextField: UITextField) -> Bool {
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        
+        let login = loginTextField.text
+        let password = passwordTextField.text
+        
+        if login!.isEmpty {
+            messageLabel.text = ""
+            shakeAnimationLoginTextField()
+        } else {
+            if password == userPassword && login == userLogin {
+                rightData(message: "Password & Login succes, click Log in button to go to profile")
+            }
+            if login == userLogin && password != userPassword || ((password?.isEmpty) != nil) {
+                loginDonePasswordEmty()
+            }
+            if  login != userLogin {
+                wrongData(message: "Login fail")
+            }
+        }
+        
+        if password!.isEmpty {
+            messageLabel.text = ""
+            shakeAnimationPasswordTextField()
+        } else {
+            if password == userPassword && login == userLogin {
+                rightData(message: "Password & Login succes, click Log in button to go to profile")
+            }
+            if password == userPassword && login != userLogin || ((login?.isEmpty) != nil) {
+                passwordDoneLoginEmpty()
+            }
+            if  password != userPassword {
+                wrongData(message: "Password fail")
+            }
+        }
+        
         view.endEditing(true)
         return true
     }
 }
+
+
